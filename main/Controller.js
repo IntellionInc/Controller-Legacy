@@ -1,4 +1,4 @@
-const Executable = require("@intellion/executable");
+const { Executable } = require("@intellion/executable");
 
 module.exports = class Controller extends Executable {
   constructor(request, response) {

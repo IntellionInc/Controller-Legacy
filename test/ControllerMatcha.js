@@ -1,4 +1,4 @@
-let { Assertion, Stub, expect, sinon } = require("@intellion/matchalatte");
+let { Assertion, Stub, expect, sinon } = require("@intellion/executable").Matcha;
 
 class ControllerAssertion extends Assertion { };
 class ControllerStub extends Stub { };

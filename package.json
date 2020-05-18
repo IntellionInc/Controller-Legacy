@@ -17,7 +17,7 @@
   },
   "homepage": "https://github.com/IntellionInc/Controller#readme",
   "dependencies": {
-    "@intellion/executable": "^1.1.0",
+    "@intellion/executable": "^1.2.0",
     "@intellion/matchalatte": "^1.3.3",
     "mocha": "^7.1.2"
   }

@@ -1,5 +1,5 @@
 const { expect, Assertion } = require("./ControllerMatcha");
-const Executable = require("@intellion/executable");
+const { Executable } = require("@intellion/executable");
 const Controller = require("../main/Controller");
 
 describe("Controller", () => {
