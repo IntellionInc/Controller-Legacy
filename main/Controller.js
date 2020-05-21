@@ -5,4 +5,5 @@ module.exports = class Controller extends Executable {
     if (!request || !response) throw new Error("Controller should be initiated with a request and response");
     super(); this.request = request; this.response = response;
   };
+  main = async methodName => await this[methodName](this.request);
 };

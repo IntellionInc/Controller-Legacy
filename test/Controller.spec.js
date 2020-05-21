@@ -1,4 +1,4 @@
-const { expect, Assertion } = require("./ControllerMatcha");
+const { expect, Assertion, Stub } = require("./ControllerMatcha");
 const { Executable } = require("@intellion/executable");
 const Controller = require("../main/Controller");
 
@@ -29,5 +29,12 @@ describe("Controller", () => {
         () => new Assertion(() => new Controller())
           .whenCalledWith().should().throw("Controller should be initiated with a request and response"));
     });
-  })
+  });
+  describe("main", () => {
+    let methodName = "some-method", methodResult = "some-result";
+    beforeEach(() => {
+      new Stub(controller).receives(methodName).with(request).andResolves(methodResult);
+    });
+    it("should call the appropriate function", () => new Assertion(controller.main).whenCalledWith(methodName).should().resolve(methodResult))
+  });
 });
