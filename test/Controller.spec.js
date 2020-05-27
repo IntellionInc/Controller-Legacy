@@ -33,6 +33,9 @@ describe("Controller", () => {
           .whenCalledWith().should().throw("Controller should be initiated with a request and response"));
     });
   });
+  describe("authProtocol", () => {
+    it("should return true by default", () => new Assertion(controller.authProtocol).whenCalledWith().should().resolve(true));
+  });
   describe("_authorize", () => {
     let authProtocolResult, statusCode;
     beforeEach(() => {
