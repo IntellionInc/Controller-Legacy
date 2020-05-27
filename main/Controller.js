@@ -11,7 +11,7 @@ module.exports = class Controller extends Chain {
       .finally(this._respond);
   };
   authProtocol = async () => true;
-
+  controls = functionName => { this._controlledFunction = this[functionName]; return this };
   _authorize = async () => {
     switch (await this.authProtocol()) {
       case true:
@@ -22,7 +22,7 @@ module.exports = class Controller extends Chain {
         return { success: false };
     };
   };
-  _control = async () => { };
+  _control = async () => await this._controlledFunction(this.request);
   _respond = async () => { };
 
 };

@@ -36,6 +36,15 @@ describe("Controller", () => {
   describe("authProtocol", () => {
     it("should return true by default", () => new Assertion(controller.authProtocol).whenCalledWith().should().resolve(true));
   });
+  describe("controls", () => {
+    let myFunction = () => { };
+    beforeEach(() => {
+      controller.functionName = myFunction;
+    });
+
+    it("should set the controlled function and return this", () => new Assertion(controller.controls).whenCalledWith("functionName")
+      .should(r => expect(controller._controlledFunction).to.eq(myFunction)).return(controller));
+  });
   describe("_authorize", () => {
     let authProtocolResult, statusCode;
     beforeEach(() => {
@@ -58,5 +67,12 @@ describe("Controller", () => {
       it("should return unsuccessful response", () => new Assertion(controller._authorize)
         .whenCalledWith().should().resolve({ success: false }))
     });
+  });
+  describe("_control", () => {
+    beforeEach(() => {
+      new Stub(controller).receives("_controlledFunction").with(request).andResolves({ some: "result" });
+    });
+    it("should call the controlledFunction", () => new Assertion(controller._control)
+      .whenCalledWith().should().succeed());
   });
 });
