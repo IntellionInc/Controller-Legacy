@@ -69,10 +69,11 @@ describe("Controller", () => {
     });
   });
   describe("_control", () => {
+    let result = { some: "result" };
     beforeEach(() => {
-      new Stub(controller).receives("_controlledFunction").with(request).andResolves({ some: "result" });
+      new Stub(controller).receives("_controlledFunction").with(request).andResolves(result);
     });
     it("should call the controlledFunction", () => new Assertion(controller._control)
-      .whenCalledWith().should().succeed());
+      .whenCalledWith().should(r => expect(controller._controlledResult).to.eq(result)).succeed());
   });
 });
