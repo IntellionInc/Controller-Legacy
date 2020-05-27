@@ -45,6 +45,10 @@ describe("Controller", () => {
     it("should set the controlled function and return this", () => new Assertion(controller.controls).whenCalledWith("functionName")
       .should(r => expect(controller._controlledFunction).to.eq(myFunction)).return(controller));
   });
+  describe("withoutAuthentication", () => {
+    it("should remove auth function from beforeHooks and return this", () => new Assertion(controller.withoutAuthentication)
+      .whenCalledWith().should(r => expect(controller._beforeHooks[0]).to.eq(undefined)).return(controller));
+  });
   describe("_authorize", () => {
     let authProtocolResult, statusCode;
     beforeEach(() => {

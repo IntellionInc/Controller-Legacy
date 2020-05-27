@@ -12,6 +12,11 @@ module.exports = class Controller extends Chain {
   };
   authProtocol = async () => true;
   controls = functionName => { this._controlledFunction = this[functionName]; return this };
+  withoutAuthentication = () => {
+    let authIndex = this._beforeHooks.indexOf(this._authorize);
+    this._beforeHooks.splice(authIndex, 1);
+    return this;
+  }
   _authorize = async () => {
     switch (await this.authProtocol()) {
       case true:
