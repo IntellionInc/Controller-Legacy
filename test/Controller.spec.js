@@ -1,5 +1,5 @@
 const { expect, Assertion, Stub } = require("./ControllerMatcha");
-const { Executable } = require("@intellion/executable");
+const { Chain } = require("@intellion/executable");
 const Controller = require("../main/Controller");
 
 describe("Controller", () => {
@@ -14,9 +14,12 @@ describe("Controller", () => {
   describe("constructor", () => {
     context("when request and response has been provided", () => {
       it("should be an executable",
-        () => expect(controller).to.be.an.instanceof(Executable));
+        () => expect(controller).to.be.an.instanceof(Chain));
       it("should hold controller attributes",
-        () => new Assertion(controller).toHaveProperties({ request, response }));
+        () => new Assertion(controller).toHaveProperties({ request, response, breakOnError: true }));
+      it("should hold authorize before hook", () => expect(controller._beforeHooks[0].method).to.eq(controller._authorize));
+      it("should hold control main hook", () => expect(controller._mainHooks[0].method).to.eq(controller._control));
+      it("should hold respond finally hook", () => expect(controller._finallyHooks[0].method).to.eq(controller._respond));
     });
     context("when either request or response is missing", () => {
       it("should throw an error for missing request",
@@ -30,11 +33,27 @@ describe("Controller", () => {
           .whenCalledWith().should().throw("Controller should be initiated with a request and response"));
     });
   });
-  describe("main", () => {
-    let methodName = "some-method", methodResult = "some-result";
+  describe("_authorize", () => {
+    let authProtocolResult, statusCode;
     beforeEach(() => {
-      new Stub(controller).receives(methodName).with(request).andResolves(methodResult);
+      new Stub(controller).receives("authProtocol").with().andResolves(authProtocolResult);
+      new Stub(controller.response).receives("status").with(statusCode);
     });
-    it("should call the appropriate function", () => new Assertion(controller.main).whenCalledWith(methodName).should().resolve(methodResult))
+    context("for a successful authProtocol", () => {
+      before(() => {
+        authProtocolResult = true
+        statusCode = 200;
+      });
+      it("should return successful response", () => new Assertion(controller._authorize)
+        .whenCalledWith().should().resolve({ success: true }))
+    });
+    context("for an unsuccessful authProtocol", () => {
+      before(() => {
+        authProtocolResult = false
+        statusCode = 401;
+      });
+      it("should return unsuccessful response", () => new Assertion(controller._authorize)
+        .whenCalledWith().should().resolve({ success: false }))
+    });
   });
 });
