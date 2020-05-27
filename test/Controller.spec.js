@@ -76,4 +76,13 @@ describe("Controller", () => {
     it("should call the controlledFunction", () => new Assertion(controller._control)
       .whenCalledWith().should(r => expect(controller._controlledResult).to.eq(result)).succeed());
   });
+  describe("_respond", () => {
+    let controlledResult = "some-result", responseResult = { great: "response" };
+    beforeEach(() => {
+      controller._controlledResult = controlledResult;
+      new Stub(controller.response).receives("send").with(controlledResult).andResolves(responseResult);
+    });
+    it("should send back a json response with the controlledResponse", () => new Assertion(controller._respond)
+      .whenCalledWith().should().resolve(responseResult));
+  });
 });

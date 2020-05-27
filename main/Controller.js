@@ -22,7 +22,6 @@ module.exports = class Controller extends Chain {
         return { success: false };
     };
   };
-  _control = async () => { this._controlledResult = await this._controlledFunction(this.request) };
-  _respond = async () => { };
-
+  _control = async () => this._controlledResult = await this._controlledFunction(this.request);
+  _respond = async () => this.response.send(this._controlledResult);
 };
