@@ -18,6 +18,7 @@ describe("Controller", () => {
       it("should hold controller attributes",
         () => new Assertion(controller).toHaveProperties({ request, response, breakOnError: true }));
       it("should hold authorize before hook", () => expect(controller._beforeHooks[0].method).to.eq(controller._authorize));
+      it("should hold validate before hook", () => expect(controller._beforeHooks[1].method).to.eq(controller._validate));
       it("should hold control main hook", () => expect(controller._mainHooks[0].method).to.eq(controller._control));
       it("should hold respond finally hook", () => expect(controller._finallyHooks[0].method).to.eq(controller._respond));
     });
@@ -47,7 +48,7 @@ describe("Controller", () => {
   });
   describe("withoutAuthentication", () => {
     it("should remove auth function from beforeHooks and return this", () => new Assertion(controller.withoutAuthentication)
-      .whenCalledWith().should(r => expect(controller._beforeHooks[0]).to.eq(undefined)).return(controller));
+      .whenCalledWith().should(r => expect(controller._beforeHooks[0].method).not.to.eq(controller._authorize)).return(controller));
   });
   describe("_authorize", () => {
     let authProtocolResult, statusCode;

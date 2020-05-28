@@ -7,6 +7,7 @@ module.exports = class Controller extends Chain {
     this.request = request; this.response = response;
     this
       .before(this._authorize)
+      .before(this._validate)
       .main(this._control)
       .finally(this._respond);
   };
@@ -14,10 +15,11 @@ module.exports = class Controller extends Chain {
   validationProtocol = async () => true;
   controls = functionName => { this._controlledFunction = this[functionName]; return this };
   withoutAuthentication = () => {
-    let authIndex = this._beforeHooks.indexOf(this._authorize);
+    let authHook = this._beforeHooks.find(i => i.method === this._authorize);
+    let authIndex = this._beforeHooks.indexOf(authHook);
     this._beforeHooks.splice(authIndex, 1);
     return this;
-  }
+  };
   _authorize = async () => {
     switch (await this.authProtocol()) {
       case true:
