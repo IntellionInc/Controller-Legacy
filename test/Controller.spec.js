@@ -50,6 +50,12 @@ describe("Controller", () => {
     it("should remove auth function from beforeHooks and return this", () => new Assertion(controller.withoutAuthentication)
       .whenCalledWith().should(r => expect(controller._beforeHooks[0].method).not.to.eq(controller._authorize)).return(controller));
   });
+  describe("withRestriction", () => {
+    it("should add a new beforeHook that restricts access to the endpoint", () => new Assertion(controller.withRestriction)
+      .whenCalledWith("a", "b")
+      .should(r => expect(controller._beforeHooks[2].method.name).to.eql("bound _restrict"))
+      .return(controller));
+  });
   describe("_authorize", () => {
     let authProtocolResult, statusCode;
     beforeEach(() => {
@@ -95,6 +101,40 @@ describe("Controller", () => {
         .should(r => expect(controller._controlledResult).to.eq(undefined))
         .and
         .resolve({ success: true }));
+    });
+  });
+  describe("_restrict", () => {
+    let attribute = "accessLevel", level = "admin";
+    context("when a user is stored", () => {
+      context("when user has appropriate permissions", () => {
+        beforeEach(() => {
+          new Stub(response).receives("status").with(200).andReturns({});
+          controller.user = { accessLevel: "admin" };
+        });
+        it("should set status to 200 and return successful response", () => new Assertion(controller._restrict)
+          .whenCalledWith(attribute, level)
+          .should()
+          .resolve({ success: true }));
+      });
+      context("when user doesnt have appropriate permissions", () => {
+        beforeEach(() => {
+          controller.user = { accessLevel: "user" };
+          new Stub(response).receives("status").with(401).andReturns({});
+        });
+        it("should set 401 status and return unsuccessful response", () => new Assertion(controller._restrict)
+          .whenCalledWith(attribute, level)
+          .should()
+          .resolve({ success: false }));
+      });
+    });
+    context("when a user is not stored", () => {
+      beforeEach(() => {
+        new Stub(response).receives("status").with(401).andReturns({});
+      });
+      it("should set 401 status and return unsuccessful response", () => new Assertion(controller._restrict)
+        .whenCalledWith(attribute, level)
+        .should()
+        .resolve({ success: false }));
     });
   });
   describe("_control", () => {

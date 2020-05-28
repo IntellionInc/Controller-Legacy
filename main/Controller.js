@@ -20,6 +20,7 @@ module.exports = class Controller extends Chain {
     this._beforeHooks.splice(authIndex, 1);
     return this;
   };
+  withRestriction = (attribute, level) => this.before(this._restrict.bind(this, attribute, level));
   _authorize = async () => {
     switch (await this.authProtocol()) {
       case true:
@@ -39,6 +40,16 @@ module.exports = class Controller extends Chain {
       default:
         this.response.status(400);
         this._controlledResult = { success, data };
+        return { success: false };
+    };
+  };
+  _restrict = async (attribute, level) => {
+    switch (!!this.user && this.user[attribute] === level) {
+      case true:
+        this.response.status(200);
+        return { success: true };
+      default:
+        this.response.status(401);
         return { success: false };
     };
   };
