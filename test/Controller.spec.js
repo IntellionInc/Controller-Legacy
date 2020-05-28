@@ -73,12 +73,61 @@ describe("Controller", () => {
     });
   });
   describe("_control", () => {
-    let result = { some: "result" };
-    beforeEach(() => {
-      new Stub(controller).receives("_controlledFunction").with(request).andResolves(result);
+    context("for a successful controlled function call", () => {
+      let result = { some: "result" };
+      beforeEach(() => {
+        new Stub(controller).receives("_controlledFunction").with(request).andResolves(result);
+      });
+      it("should call the controlledFunction", () => new Assertion(controller._control)
+        .whenCalledWith().should(r => expect(controller._controlledResult).to.eq(result)).succeed());
     });
-    it("should call the controlledFunction", () => new Assertion(controller._control)
-      .whenCalledWith().should(r => expect(controller._controlledResult).to.eq(result)).succeed());
+    context("for an unsuccessful controlled function call", () => {
+      let result = { success: false };
+      beforeEach(() => {
+        new Stub(controller).receives("_controlledFunction").with(request).andResolves(result);
+      });
+      context("when no status is included in result", () => {
+        beforeEach(() => {
+          new Stub(controller.response).receives("status").with(500).andReturns({});
+        });
+        it("should default to a 500 status code", () => new Assertion(controller._control)
+          .whenCalledWith().should().succeed());
+      });
+      context("when result includes a status", () => {
+        beforeEach(() => {
+          result.status = 123;
+          new Stub(controller.response).receives("status").with(123).andReturns({});
+        });
+        it("should set response to be sent with specified status", () => new Assertion(controller._control)
+          .whenCalledWith().should().succeed());
+      });
+    });
+    context("for a controlled function that throws an error", () => {
+      let result = new Error("some-error");
+      beforeEach(() => {
+        new Stub(controller).receives("_controlledFunction").with(request).andThrows(result);
+        new Stub(response).receives("status").with(500).andReturns({});
+      });
+      it("should call the controlledFunction and store error", () => new Assertion(controller._control)
+        .whenCalledWith()
+        .should(r =>
+          expect(controller._controlledResult).to.eql({ success: false, error: result.message, stack: result.stack }))
+        .and
+        .succeed());
+    });
+    context("for a controlled function that rejects an error", () => {
+      let result = new Error("some-error");
+      beforeEach(() => {
+        new Stub(controller).receives("_controlledFunction").with(request).andRejects(result);
+        new Stub(response).receives("status").with(500).andReturns({});
+      });
+      it("should call the controlledFunction and store error", () => new Assertion(controller._control)
+        .whenCalledWith()
+        .should(r =>
+          expect(controller._controlledResult).to.eql({ success: false, error: result.message, stack: result.stack }))
+        .and
+        .succeed());
+    });
   });
   describe("_respond", () => {
     let controlledResult = "some-result", responseResult = { great: "response" };
