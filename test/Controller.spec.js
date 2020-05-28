@@ -73,6 +73,30 @@ describe("Controller", () => {
         .whenCalledWith().should().resolve({ success: false }))
     });
   });
+  describe("_validate", () => {
+    context("when validationProtocol fails", () => {
+      beforeEach(() => {
+        new Stub(controller).receives("validationProtocol").andResolves({ success: false, data: "Missing stuff" });
+        new Stub(response).receives("status").with(400).andReturns({});
+      });
+      it("should set a controlledResult and status", () => new Assertion(controller._validate)
+        .whenCalledWith()
+        .should(r => expect(controller._controlledResult).to.eql({ success: false, data: "Missing stuff" }))
+        .and
+        .resolve({ success: false }));
+    });
+    context("when validationProtocol succeeds", () => {
+      beforeEach(() => {
+        new Stub(controller).receives("validationProtocol").andResolves({ success: true });
+        new Stub(response).receives("status").with(200).andReturns({});
+      });
+      it("should set a controlledResult and status", () => new Assertion(controller._validate)
+        .whenCalledWith()
+        .should(r => expect(controller._controlledResult).to.eq(undefined))
+        .and
+        .resolve({ success: true }));
+    });
+  });
   describe("_control", () => {
     context("for a successful controlled function call", () => {
       let result = { some: "result" };
@@ -138,29 +162,5 @@ describe("Controller", () => {
     });
     it("should send back a json response with the controlledResponse", () => new Assertion(controller._respond)
       .whenCalledWith().should().resolve(responseResult));
-  });
-  describe("_validate", () => {
-    context("when validationProtocol fails", () => {
-      beforeEach(() => {
-        new Stub(controller).receives("validationProtocol").andResolves({ success: false, data: "Missing stuff" });
-        new Stub(response).receives("status").with(400).andReturns({});
-      });
-      it("should set a controlledResult and status", () => new Assertion(controller._validate)
-        .whenCalledWith()
-        .should(r => expect(controller._controlledResult).to.eql({ success: false, data: "Missing stuff" }))
-        .and
-        .resolve({ success: false }));
-    });
-    context("when validationProtocol succeeds", () => {
-      beforeEach(() => {
-        new Stub(controller).receives("validationProtocol").andResolves({ success: true });
-        new Stub(response).receives("status").with(200).andReturns({});
-      });
-      it("should set a controlledResult and status", () => new Assertion(controller._validate)
-        .whenCalledWith()
-        .should(r => expect(controller._controlledResult).to.eq(undefined))
-        .and
-        .resolve({ success: true }));
-    });
   });
 });

@@ -30,14 +30,6 @@ module.exports = class Controller extends Chain {
         return { success: false };
     };
   };
-  _control = async () => {
-    let controlledResult;
-    try { controlledResult = await this._controlledFunction(this.request); }
-    catch (error) { controlledResult = { success: false, error: error.message, stack: error.stack } }
-    if (controlledResult && controlledResult.success === false) this.response.status(controlledResult.status || 500);
-    this._controlledResult = controlledResult;
-  };
-  _respond = async () => this.response.send(this._controlledResult);
   _validate = async () => {
     let { success, data } = await this.validationProtocol();
     switch (success) {
@@ -47,7 +39,15 @@ module.exports = class Controller extends Chain {
       default:
         this.response.status(400);
         this._controlledResult = { success, data };
-        return { success: false }
-    }
+        return { success: false };
+    };
   };
+  _control = async () => {
+    let controlledResult;
+    try { controlledResult = await this._controlledFunction(this.request); }
+    catch (error) { controlledResult = { success: false, error: error.message, stack: error.stack } }
+    if (controlledResult && controlledResult.success === false) this.response.status(controlledResult.status || 500);
+    this._controlledResult = controlledResult;
+  };
+  _respond = async () => this.response.send(this._controlledResult);
 };
