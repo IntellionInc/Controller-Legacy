@@ -11,6 +11,7 @@ module.exports = class Controller extends Chain {
       .finally(this._respond);
   };
   authProtocol = async () => true;
+  validationProtocol = async () => true;
   controls = functionName => { this._controlledFunction = this[functionName]; return this };
   withoutAuthentication = () => {
     let authIndex = this._beforeHooks.indexOf(this._authorize);
@@ -35,4 +36,16 @@ module.exports = class Controller extends Chain {
     this._controlledResult = controlledResult;
   };
   _respond = async () => this.response.send(this._controlledResult);
+  _validate = async () => {
+    let { success, data } = await this.validationProtocol();
+    switch (success) {
+      case true:
+        this.response.status(200);
+        return { success: true };
+      default:
+        this.response.status(400);
+        this._controlledResult = { success, data };
+        return { success: false }
+    }
+  };
 };
