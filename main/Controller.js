@@ -12,7 +12,7 @@ module.exports = class Controller extends Chain {
       .finally(this._respond);
   };
   authProtocol = async () => true;
-  validationProtocol = async () => true;
+  validationProtocol = async () => ({ success: true, data: "Default Validation Protocol" });
   controls = functionName => { this._controlledFunction = this[functionName]; return this };
   withoutAuthentication = () => {
     let authHook = this._beforeHooks.find(i => i.method === this._authorize);
