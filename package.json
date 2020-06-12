@@ -1,8 +1,8 @@
 {
   "name": "@intellion/controller",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "",
-  "main": "main/controller.js",
+  "main": "main/Controller.js",
   "scripts": {
     "test": "mocha test"
   },
